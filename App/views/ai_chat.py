@@ -5,7 +5,8 @@
 
 import os
 import streamlit as st
-import anthropic
+from google import genai
+from google.genai import types
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -48,23 +49,26 @@ def render():
             st.markdown(prompt)
 
         with st.chat_message("assistant"):
-            api_key = os.getenv("ANTHROPIC_API_KEY")
+            api_key = os.getenv("API_KEY")
             if not api_key:
-                st.error("ANTHROPIC_API_KEY not set in .env")
+                st.error("API_KEY not set in .env")
                 return
 
-            client = anthropic.Anthropic(api_key=api_key)
+            client = genai.Client(api_key=api_key)
             with st.spinner("Thinking..."):
-                response = client.messages.create(
-                    model="claude-sonnet-4-6",
-                    max_tokens=1000,
-                    system=SYSTEM_PROMPT,
-                    messages=[
-                        {"role": m["role"], "content": m["content"]}
-                        for m in st.session_state.chat_history
-                    ],
+                history = [
+                    types.Content(
+                        role=m["role"],
+                        parts=[types.Part(text=m["content"])]
+                    )
+                    for m in st.session_state.chat_history
+                ]
+                response = client.models.generate_content(
+                    model="gemini-2.0-flash",
+                    config=types.GenerateContentConfig(system_instruction=SYSTEM_PROMPT),
+                    contents=history,
                 )
-                reply = response.content[0].text
+                reply = response.text
 
             st.markdown(reply)
             st.session_state.chat_history.append({"role": "assistant", "content": reply})

@@ -1,0 +1,8 @@
+,,,,,,,,,,,
+,shipment_id,shipment_date,supplier_name,product_name,category,sku,asin,ebay_item_id,quantity_received,unit_cost,notes
+,SHIP-10001,3/5/2026,SVT,xbox elite series 2 black,controller,XBESC-2234,B98GF564Z,234523457,92, $ 35.00 ,
+,SHIP-10001,3/5/2026,SVT,nintendo switch joycon red,controller,NSJCR-4322,N234JC123,490238402,112, $ 25.00 ,
+,SHIP-10001,3/5/2026,SVT,powera switch pro controller (kirby),controller,PWASC-9771,P23AS93CC,531234234,55, $ 15.75 ,
+,SHIP-10002,3/10/2026,SVT,xbox elite series 2 black,controller,XBESC-2234,B98GF564Z,234523457,86, $ 37.85 ,
+,SHIP-10002,3/10/2026,SVT,ps5 disc edition,console,PS5DE-1123,P992SSA21,157539293,21, $ 350.00 ,
+,SHIP-10003,4/1/2026,SYP,nba 2k27,game,NBAKK-3112,N493213T5,871230402,77, $ 7.25 ,

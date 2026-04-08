@@ -5,7 +5,7 @@
 # ─────────────────────────────────────────────
 
 import streamlit as st
-from app.database import test_connection
+from database import test_connection
 
 st.set_page_config(
     page_title="RPR Automated",
@@ -42,29 +42,29 @@ st.sidebar.caption("RPR Automated v0.1 · Jectronics LLC")
 
 # ── Page routing ──
 if page_key == "dashboard":
-    from app.pages import dashboard
+    from views import dashboard
     dashboard.render()
 
 elif page_key == "inventory":
-    from app.pages import inventory
+    from views import inventory
     inventory.render()
 
 elif page_key == "profit":
-    from app.pages import profit
+    from views import profit
     profit.render()
 
 elif page_key == "fba":
-    from app.pages import fba
+    from views import fba
     fba.render()
 
 elif page_key == "upload":
-    from app.pages import upload
+    from views import upload
     upload.render()
 
 elif page_key == "ai_chat":
-    from app.pages import ai_chat
+    from views import ai_chat
     ai_chat.render()
 
 elif page_key == "settings":
-    from app.pages import settings
+    from views import settings
     settings.render()
