@@ -4,11 +4,12 @@
 # Run with:  streamlit run app/main.py
 # ─────────────────────────────────────────────
 
+import os
 import streamlit as st
 from database import test_connection
 
 st.set_page_config(
-    page_title="RPR Automated",
+    page_title="Jamie's Warehouse",
     page_icon="📦",
     layout="wide",
     initial_sidebar_state="expanded",
