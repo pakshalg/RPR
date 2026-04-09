@@ -15,7 +15,7 @@ st.set_page_config(
 )
 
 # ── Sidebar navigation ──
-st.sidebar.image("assets/logo.png", use_column_width=True) if __import__("os").path.exists("assets/logo.png") else st.sidebar.title("📦 RPR Automated")
+st.sidebar.title("📦 RPR Automated")
 st.sidebar.markdown("---")
 
 pages = {
