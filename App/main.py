@@ -9,17 +9,14 @@ import streamlit as st
 from database import test_connection
 
 st.set_page_config(
-    page_title="RPR Automated",
+    page_title="Jamie's Warehouse",
     page_icon="📦",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
 # ── Sidebar navigation ──
-if os.path.exists("assets/logo.png"):
-    st.sidebar.image("assets/logo.png", use_column_width=True)
-else:
-    st.sidebar.title("📦 RPR Automated")
+st.sidebar.title("📦 RPR Automated")
 st.sidebar.markdown("---")
 
 pages = {
