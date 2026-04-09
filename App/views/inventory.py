@@ -55,13 +55,13 @@ def render():
         return
 
     df = pd.DataFrame(rows, columns=[
-        "SKU", "Product", "Category", "Qty on Hand", "Avg Unit Cost", "Total Value"
+        "SKU", "Product", "Category", "Available Quantity", "Avg Unit Cost", "Total Value"
     ])
 
     # Summary metrics
     col1, col2, col3 = st.columns(3)
     col1.metric("Total SKUs", len(df))
-    col2.metric("Total Units", f"{df['Quantity Available'].sum():,}")
+    col2.metric("Total Units", f"{df['Available Quantity'].sum():,}")
     col3.metric("Inventory Value", f"${df['Total Value'].sum():,.2f}")
 
     st.markdown("---")
