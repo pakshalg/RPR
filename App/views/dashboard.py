@@ -15,6 +15,30 @@ def render():
     st.caption("Overview of sales, inventory, and profit")
     st.markdown("---")
 
+    st.markdown(
+        """
+        <style>
+        /* Purple branding for dashboard metric cards */
+        div[data-testid="stMetric"] {
+            background: linear-gradient(150deg, #4c1d95 0%, #6d28d9 55%, #5b21b6 100%);
+            border: 1px solid #a855f7;
+            border-left: 5px solid #c084fc;
+            border-radius: 12px;
+            padding: 14px 12px;
+            box-shadow: 0 8px 18px rgba(49, 11, 103, 0.35);
+        }
+
+        div[data-testid="stMetric"] label,
+        div[data-testid="stMetric"] div[data-testid="stMetricLabel"],
+        div[data-testid="stMetric"] div[data-testid="stMetricValue"],
+        div[data-testid="stMetric"] div[data-testid="stMetricDelta"] {
+            color: #f5ecff;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
     # Connect to DB
     try:
         conn = get_connection()
