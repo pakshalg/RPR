@@ -27,6 +27,8 @@ Key context:
 - Amazon has two fulfillment types: FBA and FBM (direct)
 - eBay fees are ~13%, Amazon referral ~15%, FBA adds a per-unit fulfillment fee
 
+IMPORTANT: When referring to inventory, sales, or any product-related information, always use the product name or title, not the SKU. Do not mention SKUs unless the user specifically asks for them. If both are available, prefer the product name/title in all responses.
+
 Be concise. Lead with the answer, then explain if needed."""
 
 
@@ -35,28 +37,58 @@ def get_live_data():
         conn = get_connection()
         cur = conn.cursor()
 
-        # Query inventory tables
-        cur.execute("SELECT * FROM inventory_warehouse")
+        # Warehouse Inventory with product title
+        cur.execute("""
+            SELECT w.sku, p.title, w.quantity, w.location
+            FROM inventory_warehouse w
+            JOIN products p ON w.sku = p.sku
+        """)
         warehouse_rows = cur.fetchall()
 
-        cur.execute("SELECT * FROM inventory_fba")
+        # FBA Inventory with product title
+        cur.execute("""
+            SELECT f.sku, p.title, f.qty_in_transit, f.qty_available, f.qty_reserved, f.shipment_id
+            FROM inventory_fba f
+            JOIN products p ON f.sku = p.sku
+        """)
         fba_rows = cur.fetchall()
 
-        # Query sales tables
-        cur.execute("SELECT * FROM sales_amazon")
+        # Amazon Sales with product title
+        cur.execute("""
+            SELECT s.sku, p.title, s.sale_date, s.quantity, s.revenue
+            FROM sales_amazon s
+            JOIN products p ON s.sku = p.sku
+        """)
         amazon_rows = cur.fetchall()
 
-        cur.execute("SELECT * FROM sales_ebay")
+        # eBay Sales with product title
+        cur.execute("""
+            SELECT s.sku, p.title, s.sale_date, s.quantity, s.revenue
+            FROM sales_ebay s
+            JOIN products p ON s.sku = p.sku
+        """)
         ebay_rows = cur.fetchall()
 
         cur.close()
         release_connection(conn)
 
-        # Format rows
-        warehouse_text = "Warehouse Inventory:\n" + "\n".join([f"- {str(row)}" for row in warehouse_rows])
-        fba_text = "FBA Inventory:\n" + "\n".join([f"- {str(row)}" for row in fba_rows])
-        amazon_text = "Amazon Sales:\n" + "\n".join([f"- {str(row)}" for row in amazon_rows])
-        ebay_text = "eBay Sales:\n" + "\n".join([f"- {str(row)}" for row in ebay_rows])
+        # Format rows with product name
+        warehouse_text = "Warehouse Inventory:\n" + "\n".join([
+            f"- {title}: {quantity} units (Location: {location if location else 'N/A'})"
+            for _, title, quantity, location in warehouse_rows
+        ])
+        fba_text = "FBA Inventory:\n" + "\n".join([
+            f"- {title}: {qty_available} available, {qty_in_transit} in transit, {qty_reserved} reserved (Shipment: {shipment_id if shipment_id else 'N/A'})"
+            for _, title, qty_in_transit, qty_available, qty_reserved, shipment_id in fba_rows
+        ])
+        amazon_text = "Amazon Sales:\n" + "\n".join([
+            f"- {title} on {sale_date}: {quantity} sold, ${revenue:.2f} revenue"
+            for _, title, sale_date, quantity, revenue in amazon_rows
+        ])
+        ebay_text = "eBay Sales:\n" + "\n".join([
+            f"- {title} on {sale_date}: {quantity} sold, ${revenue:.2f} revenue"
+            for _, title, sale_date, quantity, revenue in ebay_rows
+        ])
 
         return f"{warehouse_text}\n\n{fba_text}\n\n{amazon_text}\n\n{ebay_text}"
     except Exception as e:
