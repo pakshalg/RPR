@@ -76,12 +76,19 @@ def render():
     # Alert for overdue shipments
     overdue = fetch_overdue_shipments(7)
     if overdue:
-        with st.container():
-            st.markdown("<div style='background:#ffeaea;border-radius:10px;padding:1em 1.5em 1em 1.5em;border:1.5px solid #e0b4b4;margin-bottom:1.5em;'>", unsafe_allow_html=True)
-            st.markdown(f"<span style='color:#b30000;font-weight:600;font-size:1.1rem;'>⚠️ {len(overdue)} FBA shipment(s) have been In Transit for more than 7 days without a status update:</span>", unsafe_allow_html=True)
-            for s in overdue:
-                st.markdown(f"<span style='color:#b30000;font-weight:500;'>Shipment <b>{s[0]}</b> (SKU: <b>{s[1]}</b>) — {s[3]} units, shipped {s[2]} — <b>{s[5]} days</b> in transit</span>", unsafe_allow_html=True)
-            st.markdown("</div>", unsafe_allow_html=True)
+        rows_html = "".join(
+            f"<div style='color:#1a1a1a;font-weight:500;margin-top:0.4em;'>"
+            f"Shipment <b>{s[0]}</b> (SKU: <b>{s[1]}</b>) — {s[3]} units, shipped {s[2]} — <b>{s[5]} days</b> in transit"
+            f"</div>"
+            for s in overdue
+        )
+        st.markdown(
+            f"<div style='background:#ffeaea;border-radius:10px;padding:1em 1.5em;border:1.5px solid #e0b4b4;margin-bottom:1.5em;'>"
+            f"<div style='color:#1a1a1a;font-weight:600;font-size:1.1rem;'>⚠️ {len(overdue)} FBA shipment(s) have been In Transit for more than 7 days without a status update:</div>"
+            f"{rows_html}"
+            f"</div>",
+            unsafe_allow_html=True,
+        )
 
     st.markdown("<div style='margin-bottom:1.5em;'></div>", unsafe_allow_html=True)
 

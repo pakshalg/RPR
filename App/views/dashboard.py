@@ -6,6 +6,32 @@
 import streamlit as st
 
 
+def _panel_css(hex_color: str) -> str:
+    h = hex_color.lstrip("#")
+    r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+    darker  = f"#{max(0,int(r*.65)):02x}{max(0,int(g*.65)):02x}{max(0,int(b*.65)):02x}"
+    lighter = f"#{min(255,int(r*1.5)):02x}{min(255,int(g*1.5)):02x}{min(255,int(b*1.5)):02x}"
+    sr, sg, sb = max(0, int(r*.25)), max(0, int(g*.25)), max(0, int(b*.25))
+    return f"""
+    <style>
+    div[data-testid="stMetric"] {{
+        background: linear-gradient(150deg, {darker} 0%, {hex_color} 55%, {darker} 100%);
+        border: 1px solid {lighter};
+        border-left: 5px solid {lighter};
+        border-radius: 12px;
+        padding: 14px 12px;
+        box-shadow: 0 8px 18px rgba({sr},{sg},{sb}, 0.45);
+    }}
+    div[data-testid="stMetric"] label,
+    div[data-testid="stMetric"] div[data-testid="stMetricLabel"],
+    div[data-testid="stMetric"] div[data-testid="stMetricValue"],
+    div[data-testid="stMetric"] div[data-testid="stMetricDelta"] {{
+        color: #f5ecff !important;
+    }}
+    </style>
+    """
+
+
 def render():
     import pandas as pd
     from database import get_connection, release_connection
@@ -15,29 +41,9 @@ def render():
     st.caption("Overview of sales, inventory, and profit")
     st.markdown("---")
 
-    st.markdown(
-        """
-        <style>
-        /* Purple branding for dashboard metric cards */
-        div[data-testid="stMetric"] {
-            background: linear-gradient(150deg, #4c1d95 0%, #6d28d9 55%, #5b21b6 100%);
-            border: 1px solid #a855f7;
-            border-left: 5px solid #c084fc;
-            border-radius: 12px;
-            padding: 14px 12px;
-            box-shadow: 0 8px 18px rgba(49, 11, 103, 0.35);
-        }
-
-        div[data-testid="stMetric"] label,
-        div[data-testid="stMetric"] div[data-testid="stMetricLabel"],
-        div[data-testid="stMetric"] div[data-testid="stMetricValue"],
-        div[data-testid="stMetric"] div[data-testid="stMetricDelta"] {
-            color: #f5ecff;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
+    from settings_utils import load as _load_settings
+    panel_color = st.session_state.get("panel_color", _load_settings().get("panel_color", "#4c1d95"))
+    st.markdown(_panel_css(panel_color), unsafe_allow_html=True)
 
     # Connect to DB
     try:
