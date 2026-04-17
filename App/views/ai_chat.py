@@ -100,7 +100,7 @@ def get_system_prompt():
 
 
 def render():
-    st.title("🤖 AI Assistant")
+    st.title("😄 AI Assistant")
     st.caption("Ask any question about your sales, inventory, or profit in plain English")
     st.markdown("---")
 
