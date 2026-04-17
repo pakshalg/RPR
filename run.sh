@@ -1,3 +1,3 @@
 #!/bin/bash
-source "$(dirname "$0")/.venv/bin/activate"
-streamlit run "$(dirname "$0")/App/main.py"
+DIR="$(cd "$(dirname "$0")" && pwd)"
+"$DIR/venv/Scripts/streamlit" run "$DIR/App/main.py"

@@ -55,7 +55,7 @@ def get_live_data():
 
         # Amazon Sales with product title
         cur.execute("""
-            SELECT s.sku, p.title, s.sale_date, s.quantity, s.revenue
+            SELECT s.sku, p.title, s.sale_date, s.quantity, s.sale_price
             FROM sales_amazon s
             JOIN products p ON s.sku = p.sku
         """)
@@ -63,7 +63,7 @@ def get_live_data():
 
         # eBay Sales with product title
         cur.execute("""
-            SELECT s.sku, p.title, s.sale_date, s.quantity, s.revenue
+            SELECT s.sku, p.title, s.sale_date, s.quantity, s.sale_price
             FROM sales_ebay s
             JOIN products p ON s.sku = p.sku
         """)
@@ -72,27 +72,26 @@ def get_live_data():
         cur.close()
         release_connection(conn)
 
-        # Format rows with product name
-        warehouse_text = "Warehouse Inventory:\n" + "\n".join([
+        warehouse_text = "Warehouse Inventory:\n" + (("\n".join([
             f"- {title}: {quantity} units (Location: {location if location else 'N/A'})"
             for _, title, quantity, location in warehouse_rows
-        ])
-        fba_text = "FBA Inventory:\n" + "\n".join([
+        ])) or "  (no records)")
+        fba_text = "FBA Inventory:\n" + (("\n".join([
             f"- {title}: {qty_available} available, {qty_in_transit} in transit, {qty_reserved} reserved (Shipment: {shipment_id if shipment_id else 'N/A'})"
             for _, title, qty_in_transit, qty_available, qty_reserved, shipment_id in fba_rows
-        ])
-        amazon_text = "Amazon Sales:\n" + "\n".join([
-            f"- {title} on {sale_date}: {quantity} sold, ${revenue:.2f} revenue"
-            for _, title, sale_date, quantity, revenue in amazon_rows
-        ])
-        ebay_text = "eBay Sales:\n" + "\n".join([
-            f"- {title} on {sale_date}: {quantity} sold, ${revenue:.2f} revenue"
-            for _, title, sale_date, quantity, revenue in ebay_rows
-        ])
+        ])) or "  (no records)")
+        amazon_text = "Amazon Sales:\n" + (("\n".join([
+            f"- {title} on {sale_date}: {quantity} sold, ${sale_price:.2f}"
+            for _, title, sale_date, quantity, sale_price in amazon_rows
+        ])) or "  (no records)")
+        ebay_text = "eBay Sales:\n" + (("\n".join([
+            f"- {title} on {sale_date}: {quantity} sold, ${sale_price:.2f}"
+            for _, title, sale_date, quantity, sale_price in ebay_rows
+        ])) or "  (no records)")
 
         return f"{warehouse_text}\n\n{fba_text}\n\n{amazon_text}\n\n{ebay_text}"
     except Exception as e:
-        return f"Database error: {str(e)}. Using fallback data."
+        raise RuntimeError(f"Failed to load live data from database: {e}") from e
 
 
 def get_system_prompt():
@@ -121,6 +120,13 @@ def render():
             st.markdown(prompt)
 
         with st.chat_message("assistant"):
+            try:
+                system_prompt = get_system_prompt()
+            except RuntimeError as e:
+                st.error(str(e))
+                st.session_state.chat_history.pop()
+                st.stop()
+
             provider = os.getenv("AI_PROVIDER", "groq").lower()
 
             if provider == "google":
@@ -148,7 +154,7 @@ def render():
                     ]
                     response = client.models.generate_content(
                         model="gemini-2.0-flash",
-                        config=types.GenerateContentConfig(system_instruction=get_system_prompt()),
+                        config=types.GenerateContentConfig(system_instruction=system_prompt),
                         contents=history,
                     )
                     reply = response.text
@@ -175,7 +181,7 @@ def render():
                     return
 
                 # Build messages array for chat completions
-                messages = [{"role": "system", "content": get_system_prompt()}]
+                messages = [{"role": "system", "content": system_prompt}]
                 messages.extend([{"role": m["role"], "content": m["content"]} for m in st.session_state.chat_history])
 
                 try:

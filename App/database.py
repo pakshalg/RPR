@@ -24,6 +24,7 @@ def _get_pool():
             dbname=os.getenv("DB_NAME", "rpr_automated"),
             user=os.getenv("DB_USER", "rpr_user"),
             password=os.getenv("DB_PASSWORD", ""),
+            sslmode="require",
         )
     return _pool
 
